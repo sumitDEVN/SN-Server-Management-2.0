@@ -1,20 +1,23 @@
 #!/bin/bash
 
 # ====================================
-# SN SERVER MANAGEMENT 2.0
+# SN SERVER MANAGEMENT 2.1
 # Main Panel
 # ====================================
+
 
 source config.sh
 
 source lib/color.sh
+source lib/logger.sh
 source lib/database.sh
 source lib/user.sh
 source lib/system.sh
-source lib/expiry.sh
 
 
 init_database
+init_logger
+
 
 
 banner(){
@@ -22,9 +25,9 @@ banner(){
 clear
 
 echo -e "${CYAN}"
-echo "======================================"
-echo "      SN SERVER MANAGEMENT 2.0"
-echo "======================================"
+echo "===================================="
+echo "     SN SERVER MANAGEMENT 2.1"
+echo "===================================="
 echo -e "${RESET}"
 
 }
@@ -36,11 +39,15 @@ menu(){
 echo ""
 echo "1. Create SSH User"
 echo "2. Delete SSH User"
-echo "3. List Users"
-echo "4. Check Expiry"
-echo "5. Server Information"
-echo "6. Resource Usage"
-echo "7. Restart SSH"
+echo "3. Change Password"
+echo "4. Extend Expiry"
+echo "5. User Information"
+echo "6. List Users"
+echo ""
+echo "7. Server Information"
+echo "8. Resource Usage"
+echo "9. Show Logs"
+echo ""
 echo "0. Exit"
 echo ""
 
@@ -49,40 +56,59 @@ read -p "Select Option: " option
 
 case $option in
 
+
 1)
 create_user
 ;;
+
 
 2)
 delete_user
 ;;
 
+
 3)
+change_password
+;;
+
+
+4)
+extend_expiry
+;;
+
+
+5)
+user_info
+;;
+
+
+6)
 list_users
 ;;
 
-4)
-check_expiry
-;;
 
-5)
+7)
 system_info
 ;;
 
-6)
+
+8)
 resource_info
 ;;
 
-7)
-restart_ssh
+
+9)
+show_logs
 ;;
+
 
 0)
 exit
 ;;
 
+
 *)
-error "Invalid Option"
+error "Invalid option"
 ;;
 
 esac
