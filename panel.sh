@@ -5,7 +5,6 @@
 # Main Panel
 # ====================================
 
-
 source config.sh
 
 source lib/color.sh
@@ -16,7 +15,6 @@ source lib/expiry.sh
 
 
 init_database
-
 
 
 banner(){
@@ -49,52 +47,42 @@ echo ""
 read -p "Select Option: " option
 
 
-
 case $option in
-
 
 1)
 create_user
 ;;
 
-
 2)
 delete_user
 ;;
-
 
 3)
 list_users
 ;;
 
-
 4)
 check_expiry
 ;;
-
 
 5)
 system_info
 ;;
 
-
 6)
 resource_info
 ;;
-
 
 7)
 restart_ssh
 ;;
 
-
 0)
 exit
 ;;
 
-
 *)
-error "Invalid option"
+error "Invalid Option"
 ;;
 
 esac
