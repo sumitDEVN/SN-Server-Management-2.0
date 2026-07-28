@@ -103,6 +103,28 @@ resource_info
 show_logs
 ;;
 
+10)
+Online_Users
+;;
+
+
+11)
+SSH_Sessions
+;;
+
+12)
+Create_Backup
+;;
+
+13)
+List_Backup
+;;
+
+14)
+Restore_Backup
+;;
+
+0. Exit
 
 0)
 exit
