@@ -15,6 +15,7 @@ source lib/user.sh
 source lib/system.sh
 source lib/monitor.sh
 source lib/backup.sh
+source lib/dashboard.sh
 
 
 init_database
@@ -122,6 +123,10 @@ List_Backup
 
 14)
 Restore_Backup
+;;
+
+15)
+show_dashboard
 ;;
 
 0. Exit
