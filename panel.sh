@@ -13,6 +13,7 @@ source lib/logger.sh
 source lib/database.sh
 source lib/user.sh
 source lib/system.sh
+source lib/monitor.sh
 
 
 init_database
