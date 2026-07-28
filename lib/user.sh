@@ -1,13 +1,14 @@
 #!/bin/bash
 
 # ====================================
-# SN SERVER MANAGEMENT 2.0
+# SN SERVER MANAGEMENT 2.1
 # User Management System
 # ====================================
 
 source config.sh
 source lib/color.sh
 source lib/database.sh
+source lib/logger.sh
 
 
 create_user(){
@@ -17,7 +18,7 @@ create_user(){
 
     if id "$username" &>/dev/null
     then
-        error "User already exists!"
+        error "System user already exists"
         return
     fi
 
@@ -29,6 +30,13 @@ create_user(){
     read -p "Expiry days: " days
 
 
+    if ! [[ "$days" =~ ^[0-9]+$ ]]
+    then
+        error "Invalid expiry days"
+        return
+    fi
+
+
     expiry=$(date -d "+$days days" +"%Y-%m-%d")
 
 
@@ -38,12 +46,13 @@ create_user(){
     echo "$username:$password" | chpasswd
 
 
-    add_record "$username" "$expiry"
+    add_user_record "$username" "$expiry" "active"
+
+
+    log_action "CREATE_USER" "$username" "SUCCESS"
 
 
     success "User created successfully"
-    info "Username : $username"
-    info "Expiry   : $expiry"
 
 }
 
@@ -59,7 +68,10 @@ delete_user(){
 
         userdel -r "$username"
 
-        remove_record "$username"
+        remove_user_record "$username"
+
+        log_action "DELETE_USER" "$username" "SUCCESS"
+
 
         success "User deleted"
 
@@ -73,29 +85,7 @@ delete_user(){
 
 
 
-list_users(){
-
-    echo "=============================="
-    echo " SSH USER LIST"
-    echo "=============================="
-
-
-    if [ -s "$USER_DB" ]
-    then
-
-        cat "$USER_DB"
-
-    else
-
-        warning "No user found"
-
-    fi
-
-}
-
-
-
-check_user(){
+change_password(){
 
     read -p "Enter username: " username
 
@@ -103,12 +93,99 @@ check_user(){
     if id "$username" &>/dev/null
     then
 
-        success "User exists"
+        read -s -p "New password: " password
+        echo ""
+
+        echo "$username:$password" | chpasswd
+
+
+        log_action "CHANGE_PASSWORD" "$username" "SUCCESS"
+
+
+        success "Password changed"
 
     else
 
         error "User not found"
 
     fi
+
+}
+
+
+
+extend_expiry(){
+
+    read -p "Enter username: " username
+
+
+    if user_exists "$username"
+    then
+
+        read -p "Add days: " days
+
+
+        current=$(get_user_data "$username" | cut -d"|" -f2)
+
+
+        new_date=$(date -d "$current + $days days" +"%Y-%m-%d")
+
+
+        old=$(get_user_data "$username")
+
+
+        status=$(echo "$old" | cut -d"|" -f3)
+        created=$(echo "$old" | cut -d"|" -f4)
+
+
+        update_user_record "$username|$new_date|$status|$created"
+
+
+        log_action "EXTEND_EXPIRY" "$username" "SUCCESS"
+
+
+        success "Expiry updated"
+
+    else
+
+        error "User not found"
+
+    fi
+
+}
+
+
+
+user_info(){
+
+    read -p "Enter username: " username
+
+
+    if user_exists "$username"
+    then
+
+        echo "========================"
+        echo "USER INFORMATION"
+        echo "========================"
+
+        get_user_data "$username"
+
+    else
+
+        error "User not found"
+
+    fi
+
+}
+
+
+
+list_users(){
+
+    echo "========================"
+    echo "USER LIST"
+    echo "========================"
+
+    list_database
 
 }
