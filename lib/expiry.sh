@@ -2,34 +2,95 @@
 
 # ====================================
 # SN SERVER MANAGEMENT 2.0
-# Expiry System
+# Expiry Management System
 # ====================================
 
 source config.sh
-source lib/color.sh
 source lib/database.sh
+source lib/logger.sh
+source lib/color.sh
 
 
 check_expiry(){
 
+
     today=$(date +"%Y-%m-%d")
 
 
-    while IFS="|" read -r username expiry
+    if [ ! -f "$USER_DB" ]
+    then
+        error "Database not found"
+        return
+    fi
+
+
+    while IFS="|" read -r username expiry status created
     do
 
-        if [ "$expiry" \< "$today" ]
+
+        [ -z "$username" ] && continue
+
+
+        if [[ "$status" == "active" ]]
         then
 
-            userdel -r "$username" 2>/dev/null
 
-            remove_record "$username"
+            if [[ "$expiry" < "$today" || "$expiry" == "$today" ]]
+            then
 
-            warning "$username expired and removed"
+
+                usermod -L "$username" 2>/dev/null
+
+
+                sed -i "s/^$username|.*/$username|$expiry|expired|$created/" "$USER_DB"
+
+
+                log_action "EXPIRY_CHECK" "$username" "EXPIRED"
+
+
+                warning "$username expired"
+
+
+            fi
+
 
         fi
 
 
     done < "$USER_DB"
+
+
+    success "Expiry check completed"
+
+}
+
+
+
+remove_expired_users(){
+
+
+    while IFS="|" read -r username expiry status created
+    do
+
+
+        if [[ "$status" == "expired" ]]
+        then
+
+            userdel -r "$username" 2>/dev/null
+
+
+            sed -i "/^$username|/d" "$USER_DB"
+
+
+            log_action "AUTO_REMOVE" "$username" "SUCCESS"
+
+
+        fi
+
+
+    done < "$USER_DB"
+
+
+    success "Expired users removed"
 
 }
