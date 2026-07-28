@@ -14,6 +14,7 @@ source lib/database.sh
 source lib/user.sh
 source lib/system.sh
 source lib/monitor.sh
+source lib/backup.sh
 
 
 init_database
